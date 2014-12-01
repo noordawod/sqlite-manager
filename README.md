@@ -35,8 +35,7 @@ and it will auto-create if non-existent), check versions, check for upgrade or
 downgrade and much more.
 
 If you already use your own Application wrapper, just extend the enclosed one
-and call `super()` where application (for both `onCreate()` and 
-`onLowMemory()`.)
+and call `super()` where applicable (for both `onCreate()` and `onLowMemory()`.)
 
 How easy it is to upgrade?
 --------------------------
