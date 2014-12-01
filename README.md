@@ -61,6 +61,7 @@ Let's see how to define plans:
 
 ```java
 /**
+ * Just implement the SQLitePlan interface:
  * Upgrade database version from V4 to V5.
  */
 class V4toV5 implements SQLitePlan {
@@ -77,16 +78,13 @@ class V4toV5 implements SQLitePlan {
 
 ```java
 /**
+ * Or simply extend enclosed SQLiteUpgradePlan class:
  * Upgrade database version from V5 to V6.
  */
-class V5toV6 implements SQLitePlan {
+class V5toV6 extends SQLiteUpgradePlan {
 
   @Override
   public void applyUpgrade(final SQLiteDatabase db) {
-  }
-
-  @Override
-  public void applyDowngrade(final SQLiteDatabase db) {
   }
 }
 ```
@@ -95,29 +93,30 @@ class V5toV6 implements SQLitePlan {
 /**
  * Upgrade database version from V6 to V7.
  */
-class V6toV7 implements SQLitePlan {
+class V6toV7 extends SQLiteUpgradePlan {
 
   @Override
   public void applyUpgrade(final SQLiteDatabase db) {
   }
-
-  @Override
-  public void applyDowngrade(final SQLiteDatabase db) {
-  }
 }
 ```
+
+Note: Downgrades work the same way, but in the opposite direction.
 
 And now, you use the runner to properly upgrade from V4 to V7:
 
 ```java
-/**
- * Upgrade database version from V6 to V7.
- */
 class MyActivity extends Activity implements SQLitePlanRunner.Handler {
 
   private final static String DB_NAME = "App.db";
   private final static int DB_VERSION = 7;
 
+  /**
+   * Open the database when the app starts. If it needs upgrade, define the
+   * upgrade plans and fire the runner. The handler is defined as well so
+   * notifications regarding upgrade completion or errors will be dispatched to
+   * our activity.
+   */
   @Override
   public void onCreate(Bundle bundle) {
     super.onCreate(bundle);
@@ -157,6 +156,10 @@ class MyActivity extends Activity implements SQLitePlanRunner.Handler {
   }
 }
 ```
+
+The runner will wrap the upgrade execution within a transaction, so any error
+happening during the upgrade will cause all changes to be ignored. If a handler
+was defined, its `onError()` callback will be fired (as shown above.)
 
 License
 -------
