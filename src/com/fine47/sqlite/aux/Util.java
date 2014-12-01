@@ -27,6 +27,7 @@
 
 package com.fine47.sqlite.aux;
 
+import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import java.io.File;

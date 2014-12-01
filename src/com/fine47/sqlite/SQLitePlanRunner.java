@@ -134,7 +134,7 @@ public class SQLitePlanRunner implements Runnable {
   /**
    * Executes all plans and performs the upgrade/downgrade operation.
    *
-   * @throws SQLiteException
+   * @throws SQLiteException when errors occur during upgrade or downgrade
    */
   @Override
   public void run() throws SQLiteException {

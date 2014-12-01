@@ -42,10 +42,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * it must obtain a reference to the running {@link Application}
  * by calling {@link #setApplication(Application)}.
  *
- * To simplify, an integrated {@link DatabaseApplication} class can be used to
+ * To simplify, an integrated {@link SQLiteApplication} class can be used to
  * properly initialize this manager.
  *
- * @see DatabaseApplication
+ * @see SQLiteApplication
  * @since 1.0
  */
 public class SQLiteManager {
@@ -94,10 +94,10 @@ public class SQLiteManager {
 
   /**
    * Attaches the running {@link Application} instance.
-   * For default setups, just use the supplied
-   * {@link com.fine47.sqlite.Application} class to automatically set this up.
+   * For default setups, just use the supplied {@link SQLiteApplication} class
+   * to automatically set this up.
    *
-   * @see DatabaseApplication
+   * @see SQLiteApplication
    * @param app the {@link Application} instance
    */
   public void setApplication(Application app) {
@@ -166,7 +166,8 @@ public class SQLiteManager {
    * Returns {@link SQLiteDatabase} instance for the specified file path and use
    * the specified {@link CursorFactory} as the cursor. If the file path is
    * actually a file name, an absolute file path will be generated using
-   * {@link #normalizeFilePath(java.lang.String)} method.
+   * {@link Util#normalizeFilePath(android.content.Context, java.lang.String)}
+   * method.
    *
    * @param filePath file name/path of database file
    * @param cursor to use with the database
