@@ -28,10 +28,11 @@
 package com.fine47.sqlite;
 
 import android.app.Application;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 import com.fine47.sqlite.aux.Util;
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +62,6 @@ public class SQLiteManager {
   private static SQLiteManager instance;
 
   private Application app;
-  private DatabaseErrorHandler errorHandler;
 
   private SQLiteManager() {
     // Singleton.
@@ -106,26 +106,6 @@ public class SQLiteManager {
         "Trying to set an empty application context.");
     }
     this.app = app;
-  }
-
-  /**
-   * Returns the globally-defined {@link DatabaseErrorHandler} instance.
-   *
-   * @return defined database error handler
-   */
-  public DatabaseErrorHandler getErrorHandler() {
-    return errorHandler;
-  }
-
-  /**
-   * Defines a global {@link DatabaseErrorHandler} instance for managing
-   * corruption errors for all databases.
-   *
-   * @see DatabaseErrorHandler
-   * @param errorHandler new database error handler
-   */
-  public void setErrorHandler(DatabaseErrorHandler errorHandler) {
-    this.errorHandler = errorHandler;
   }
 
   /**
@@ -200,31 +180,19 @@ public class SQLiteManager {
 
       try {
         // Try to open the database first.
-        if(11 > android.os.Build.VERSION.SDK_INT) {
-          // API 11 introduced an error handler.
-          db = SQLiteDatabase.openDatabase(
-            filePath,
-            cursor,
-            SQLiteDatabase.OPEN_READWRITE,
-            errorHandler
-          );
-        } else {
-          // Use pre-API 11 call.
-          db = SQLiteDatabase.openDatabase(
-            filePath,
-            cursor,
-            SQLiteDatabase.OPEN_READWRITE
-          );
-        }
-      } catch(SQLiteException ignored) {
-        // The database is possibly non-existent, create it.
-        db = SQLiteDatabase.openOrCreateDatabase(
+        db = SQLiteDatabase.openDatabase(
           filePath,
           cursor,
-          errorHandler
+          SQLiteDatabase.OPEN_READWRITE
         );
+      } catch(SQLiteDatabaseCorruptException error) {
+        Log.e(LOG_TAG, "Corruption error detected in database: " + filePath);
+        throw error;
+      } catch(SQLiteException ignored) {
+        // The database is possibly non-existent, create it.
+        db = SQLiteDatabase.openOrCreateDatabase(filePath, cursor);
 
-        // Set initial version.
+        // Database created; set initial version.
         db.setVersion(1);
       }
 
