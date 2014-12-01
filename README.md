@@ -108,8 +108,12 @@ And now, you use the runner to properly upgrade from V4 to V7:
 ```java
 class MyActivity extends Activity implements SQLitePlanRunner.Handler {
 
+  private final static String LOG_TAG = "MyActivity";
+
   private final static String DB_NAME = "App.db";
   private final static int DB_VERSION = 7;
+
+  private boolean isUpgrading;
 
   /**
    * Open the database when the app starts. If it needs upgrade, define the
@@ -121,12 +125,14 @@ class MyActivity extends Activity implements SQLitePlanRunner.Handler {
   public void onCreate(Bundle bundle) {
     super.onCreate(bundle);
 
-    final dbMgr = SQLiteManager.getInstance();
+    final SQLiteManager dbMgr = SQLiteManager.getInstance();
 
     SQLiteDatabase db = dbMgr.openDatabase(DB_NAME);
     if(dbMgr.needsUpgrade(db, DB_VERSION)) {
-      // This should be running on a different thread, for simplicity's sake
-      // it's inline.
+      // Signal that the database is being upgraded.
+      isUpgrading = true;
+
+      // TODO: This should be running on a different thread.
       SQLitePlanRunner
         .For(db, DB_VERSION)
         .setHandler(this)
@@ -143,16 +149,22 @@ class MyActivity extends Activity implements SQLitePlanRunner.Handler {
   @Override
   public void onChange(SQLiteDatabase db, int oldVersion, int newVersion) {
     // Callback fired when db is upgraded from oldVersion to newVersion.
+    Log.d(
+      LOG_TAG, 
+      "Schema changed successfully from V" + oldVersion + " to V" + newVersion
+    );
   }
 
   @Override
   public void onChangeComplete(SQLiteDatabase db, int version) {
     // Callback fired when db is upgraded to target version.
+    isUpgrading = false;
   }
 
   @Override
   public void onError(SQLiteDatabase db, Throwable error) {
     // Callback fired when db encountered an error.
+    // TODO: Show an error to the user, ask what to do.
   }
 }
 ```
