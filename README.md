@@ -175,5 +175,5 @@ was defined, its `onError()` callback will be fired (as shown above.)
 
 License
 -------
-This library is open source and is released under the terms of MIT license. You
-should find a LICENSE file enclosed in the ZIP file or git checkout.
+This library is open source and released under the terms of MIT license.
+You will find a LICENSE file in the library's root directory.
