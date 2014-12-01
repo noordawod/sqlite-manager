@@ -200,12 +200,22 @@ public class SQLiteManager {
 
       try {
         // Try to open the database first.
-        db = SQLiteDatabase.openDatabase(
-          filePath,
-          cursor,
-          SQLiteDatabase.OPEN_READWRITE,
-          errorHandler
-        );
+        if(11 > android.os.Build.VERSION.SDK_INT) {
+          // API 11 introduced an error handler.
+          db = SQLiteDatabase.openDatabase(
+            filePath,
+            cursor,
+            SQLiteDatabase.OPEN_READWRITE,
+            errorHandler
+          );
+        } else {
+          // Use pre-API 11 call.
+          db = SQLiteDatabase.openDatabase(
+            filePath,
+            cursor,
+            SQLiteDatabase.OPEN_READWRITE
+          );
+        }
       } catch(SQLiteException ignored) {
         // The database is possibly non-existent, create it.
         db = SQLiteDatabase.openOrCreateDatabase(
