@@ -31,6 +31,7 @@ import android.app.Application;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteException;
 import com.fine47.sqlite.aux.Util;
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
@@ -178,8 +179,9 @@ public class SQLiteManager {
     // Try to find a cached instance.
     SQLiteDatabase db = databases.get(filePath);
 
-    // If this is the first time for getting this database.
-    if(null == db) {
+    // If this is the first time for getting this database, or if the database
+    // was previously closed by the user.
+    if(null == db || !db.isOpen()) {
       // Auto-create parent directories.
       File parentFile = new File(Util.getParentPath(filePath));
 
@@ -195,8 +197,25 @@ public class SQLiteManager {
           "Unable to create parent directories for database: " + filePath);
       }
 
-      // Now it's safe to open or create the database.
-      db = SQLiteDatabase.openOrCreateDatabase(filePath, cursor, errorHandler);
+      try {
+        // Try to open the database first.
+        db = SQLiteDatabase.openDatabase(
+          filePath,
+          cursor,
+          SQLiteDatabase.OPEN_READWRITE,
+          errorHandler
+        );
+      } catch(SQLiteException ignored) {
+        // The database is possibly non-existent, create it.
+        db = SQLiteDatabase.openOrCreateDatabase(
+          filePath,
+          cursor,
+          errorHandler
+        );
+
+        // Set initial version.
+        db.setVersion(1);
+      }
 
       // Store in internal dictionary.
       databases.put(filePath, db);
