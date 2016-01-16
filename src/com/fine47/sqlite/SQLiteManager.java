@@ -120,6 +120,19 @@ public class SQLiteManager {
   }
 
   /**
+   * Returns {@link SQLiteDatabase} instance for the specified file and use
+   * the specified target version when creating a brand new database.
+   * No {@link CursorFactory} will be used.
+   *
+   * @param filePath file name/path of database file
+   * @param targetVersion target version for brand new databases
+   * @return {@link SQLiteDatabase} instance
+   */
+  public SQLiteDatabase openDatabase(File filePath, int targetVersion) {
+    return openDatabase(filePath, targetVersion, null);
+  }
+
+  /**
    * Returns {@link SQLiteDatabase} instance for the specified file and use the
    * specified {@link CursorFactory} as the cursor.
    *
@@ -129,6 +142,19 @@ public class SQLiteManager {
    */
   public SQLiteDatabase openDatabase(File file, CursorFactory cursor) {
     return openDatabase(file.getAbsolutePath(), cursor);
+  }
+
+  /**
+   * Returns {@link SQLiteDatabase} instance for the specified file and use the
+   * specified {@link CursorFactory} as the cursor.
+   *
+   * @param file of database file
+   * @param targetVersion target version for brand new databases
+   * @param cursor to use with the database
+   * @return database instance
+   */
+  public SQLiteDatabase openDatabase(File file, int targetVersion, CursorFactory cursor) {
+    return openDatabase(file.getAbsolutePath(), targetVersion, cursor);
   }
 
   /**
@@ -154,6 +180,38 @@ public class SQLiteManager {
    * @return {@link SQLiteDatabase} instance
    */
   public SQLiteDatabase openDatabase(String filePath, CursorFactory cursor) {
+    return openDatabase(filePath, 1, cursor);
+  }
+
+  /**
+   * Returns {@link SQLiteDatabase} instance for the specified file path and use
+   * the specified target version when creating a brand new database. If the file
+   * path is actually a file name, an absolute file path will be generated using
+   * {@link Util#normalizeFilePath(android.content.Context, java.lang.String)}
+   * method.
+   * No {@link CursorFactory} will be used.
+   *
+   * @param filePath file name/path of database file
+   * @param targetVersion target version for brand new databases
+   * @return {@link SQLiteDatabase} instance
+   */
+  public SQLiteDatabase openDatabase(String filePath, int targetVersion) {
+    return openDatabase(filePath, targetVersion, null);
+  }
+
+  /**
+   * Returns {@link SQLiteDatabase} instance for the specified file path and use
+   * the specified {@link CursorFactory} as the cursor. If the file path is
+   * actually a file name, an absolute file path will be generated using
+   * {@link Util#normalizeFilePath(android.content.Context, java.lang.String)}
+   * method.
+   *
+   * @param filePath file name/path of database file
+   * @param targetVersion target version for brand new databases
+   * @param cursor to use with the database
+   * @return {@link SQLiteDatabase} instance
+   */
+  public SQLiteDatabase openDatabase(String filePath, int targetVersion, CursorFactory cursor) {
     // Normalize the file path if application is known.
     filePath = Util.normalizeFilePath(getApplication(), filePath);
 
@@ -173,7 +231,7 @@ public class SQLiteManager {
       }
 
       // Auto-create parent directories.
-      if(!parentFile.isDirectory() && !parentFile.mkdirs()) {
+      if(!parentFile.mkdirs() && !parentFile.isDirectory()) {
         throw new IllegalStateException(
           "Unable to create parent directories for database: " + filePath);
       }
@@ -185,6 +243,9 @@ public class SQLiteManager {
           cursor,
           SQLiteDatabase.OPEN_READWRITE
         );
+
+        // Log the opening.
+        Log.i(LOG_TAG, "Opened database (v" + db.getVersion() + "): " + filePath);
       } catch(SQLiteDatabaseCorruptException error) {
         Log.e(LOG_TAG, "Corruption error detected in database: " + filePath);
         throw error;
@@ -193,7 +254,10 @@ public class SQLiteManager {
         db = SQLiteDatabase.openOrCreateDatabase(filePath, cursor);
 
         // Database created; set initial version.
-        db.setVersion(1);
+        db.setVersion(targetVersion);
+
+        // Log the creation.
+        Log.i(LOG_TAG, "Created database (v1): " + filePath);
       }
 
       // Store in internal dictionary.
