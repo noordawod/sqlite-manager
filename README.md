@@ -49,7 +49,7 @@ The plans simply need to implement `SQLitePlan` interface. For simplicity's
 sake, there are two abstract classes which target upgrades (`SQLiteUpgradePlan`)
 and downgrades (`SQLiteDowngradePlan`), so you can just extend those.
 
-Let's say your app is installed in an old device and has a database with V4. 
+Let's say your app is installed in an old device and has a database with V4.
 During the last few weeks, you were busy at work in upgrading and making changes
 so the database version is now V7.
 
@@ -150,7 +150,7 @@ class MyActivity extends Activity implements SQLitePlanRunner.Handler {
   public void onChange(SQLiteDatabase db, int oldVersion, int newVersion) {
     // Callback fired when db is upgraded from oldVersion to newVersion.
     Log.d(
-      LOG_TAG, 
+      LOG_TAG,
       "Schema changed successfully from V" + oldVersion + " to V" + newVersion
     );
   }
@@ -171,7 +171,7 @@ class MyActivity extends Activity implements SQLitePlanRunner.Handler {
 
 The runner will wrap the upgrade execution within a transaction, so any error
 happening during the upgrade will cause all changes to be ignored. If a handler
-was defined, its `onError()` callback will be fired (as shown above.)
+was defined, its `onError()` handler will be fired (as shown above.)
 
 License
 -------
