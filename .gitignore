@@ -6,6 +6,8 @@ build
 gen
 private
 .gradle
+.nb-gradle
+javadoc
 *.iml
 build.xml
 custom_rules.xml
@@ -13,4 +15,3 @@ ant.properties
 local.properties
 project.properties
 proguard-project.txt
-/.nb-gradle/
