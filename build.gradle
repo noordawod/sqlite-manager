@@ -41,11 +41,12 @@ android.libraryVariants.all  { variant ->
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:26.+'
+    implementation 'com.android.support:support-v4:26.+'
 }
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
