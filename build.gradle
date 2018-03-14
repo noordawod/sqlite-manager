@@ -32,7 +32,7 @@ android {
 
 android.libraryVariants.all  { variant ->
     def name = variant.buildType.name
-    if (!name.equals("debug")) {
+    if (!name.equals('debug')) {
         def task = project.tasks.create  "jar${name.capitalize()}", Jar
         task.dependsOn variant.javaCompile
         task.from  variant.javaCompile.destinationDir
@@ -41,7 +41,6 @@ android.libraryVariants.all  { variant ->
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:27.1.0'
 }
 
 buildscript {
@@ -64,6 +63,6 @@ allprojects {
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    destinationDir = file("javadoc/")
+    destinationDir = file('javadoc/')
     failOnError false
 }
